@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keycode — JavaScript Key Code Finder</title>
+<meta name="description" content="Press any key to see JavaScript event properties. key, code, keyCode, modifiers. Copy event listener code.">
+<meta property="og:title" content="Keycode — JavaScript Key Code Finder">
+<meta property="og:description" content="Press any key to see JavaScript event properties. key, code, keyCode, modifiers. Copy event listener code.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yurukusa.github.io/keycode/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Keycode — JavaScript Key Code Finder">
+<meta name="twitter:description" content="Press any key to see JavaScript event properties. key, code, keyCode, modifiers. Copy event listener code.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--yellow:#d29922}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.container{max-width:960px;margin:0 auto;padding:24px 16px;flex:1;width:100%}
+h1{text-align:center;font-size:1.5rem;margin-bottom:8px}
+.subtitle{text-align:center;color:var(--text2);font-size:.875rem;margin-bottom:32px}
+
+/* Central display */
+.hero{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:48px 24px;text-align:center;margin-bottom:24px;transition:border-color .15s}
+.hero.active{border-color:var(--accent)}
+.hero-key{font-size:3.5rem;font-weight:700;font-family:"SF Mono",Monaco,Consolas,monospace;min-height:4.5rem;line-height:1.2;word-break:break-all}
+.hero-hint{color:var(--text2);margin-top:8px;font-size:.875rem}
+
+/* Event type tabs */
+.event-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.event-tab{padding:6px 16px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:.8rem;font-family:monospace;transition:all .15s}
+.event-tab.fired{border-color:var(--green);color:var(--green);background:rgba(63,185,80,.1)}
+
+/* Property cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.card-label{font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.card-value{font-size:1.25rem;font-family:"SF Mono",Monaco,Consolas,monospace;font-weight:600;word-break:break-all}
+.card-note{font-size:.7rem;color:var(--text2);margin-top:4px}
+
+/* Modifier badges */
+.modifiers{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.mod-badge{padding:6px 14px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-size:.8rem;font-family:monospace;transition:all .15s}
+.mod-badge.on{border-color:var(--yellow);color:var(--yellow);background:rgba(210,153,34,.12)}
+
+/* Code snippet */
+.snippet-section{margin-bottom:24px}
+.snippet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.snippet-header h2{font-size:1rem}
+.copy-btn{padding:5px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:.8rem;transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+pre{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;font-size:.85rem;line-height:1.6;font-family:"SF Mono",Monaco,Consolas,monospace}
+.hl-kw{color:var(--red)}
+.hl-str{color:#a5d6ff}
+.hl-fn{color:#d2a8ff}
+.hl-cm{color:var(--text2)}
+.hl-prop{color:var(--accent)}
+
+/* History */
+.history-section{margin-bottom:24px}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.history-header h2{font-size:1rem}
+.clear-btn{padding:5px 12px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:.8rem;transition:all .15s}
+.clear-btn:hover{border-color:var(--red);color:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);font-weight:500;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+td{padding:8px 12px;border-bottom:1px solid var(--border);font-family:monospace}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+
+/* Reference */
+.ref-section{margin-bottom:32px}
+.ref-section h2{font-size:1rem;margin-bottom:8px}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.ref-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;display:flex;justify-content:space-between;font-size:.8rem;font-family:monospace}
+.ref-name{color:var(--text2)}
+.ref-code{color:var(--accent);font-weight:600}
+
+footer{text-align:center;padding:24px 16px;color:var(--text2);font-size:.8rem;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Keycode</h1>
+  <p class="subtitle">JavaScript Key Code Finder</p>
+
+  <div class="hero" id="hero">
+    <div class="hero-key" id="heroKey">Press any key</div>
+    <div class="hero-hint" id="heroHint">Click here first if keys aren't registering</div>
+  </div>
+
+  <div class="event-tabs" id="eventTabs">
+    <div class="event-tab" id="tab-keydown">keydown</div>
+    <div class="event-tab" id="tab-keyup">keyup</div>
+    <div class="event-tab" id="tab-keypress">keypress</div>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="card-label">event.key</div><div class="card-value" id="valKey">—</div></div>
+    <div class="card"><div class="card-label">event.code</div><div class="card-value" id="valCode">—</div></div>
+    <div class="card"><div class="card-label">event.keyCode</div><div class="card-value" id="valKeyCode">—</div><div class="card-note">deprecated</div></div>
+    <div class="card"><div class="card-label">event.which</div><div class="card-value" id="valWhich">—</div><div class="card-note">deprecated</div></div>
+    <div class="card"><div class="card-label">event.location</div><div class="card-value" id="valLocation">—</div><div class="card-note" id="valLocationLabel"></div></div>
+  </div>
+
+  <div class="modifiers" id="modifiers">
+    <div class="mod-badge" id="modCtrl">Ctrl</div>
+    <div class="mod-badge" id="modShift">Shift</div>
+    <div class="mod-badge" id="modAlt">Alt</div>
+    <div class="mod-badge" id="modMeta">Meta</div>
+  </div>
+
+  <div class="snippet-section">
+    <div class="snippet-header">
+      <h2>Code Snippet</h2>
+      <button class="copy-btn" id="copyBtn" onclick="copySnippet()">Copy</button>
+    </div>
+    <pre id="snippet"><span class="hl-cm">// Press a key to generate code</span>
+<span class="hl-prop">document</span>.<span class="hl-fn">addEventListener</span>(<span class="hl-str">'keydown'</span>, (e) =&gt; {
+  <span class="hl-kw">if</span> (e.<span class="hl-prop">key</span> === <span class="hl-str">'...'</span>) {
+    <span class="hl-cm">// your handler</span>
+  }
+});</pre>
+  </div>
+
+  <div class="history-section">
+    <div class="history-header">
+      <h2>History</h2>
+      <button class="clear-btn" onclick="clearHistory()">Clear</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>key</th><th>code</th><th>keyCode</th><th>type</th></tr></thead>
+        <tbody id="historyBody"><tr><td colspan="5" style="color:var(--text2);text-align:center">No keypresses yet</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <h2>Common Key Codes</h2>
+    <div class="ref-grid" id="refGrid"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://yurukusa.github.io/dev-toolkit/">Dev Toolkit</a> — 82+ free browser-based developer tools
+</footer>
+
+<script>
+const LOCATION_LABELS = {0:'Standard',1:'Left',2:'Right',3:'Numpad'};
+const history = [];
+let snippetText = '';
+let clearTabTimeout;
+
+const COMMON_CODES = [
+  ['Backspace',8],['Tab',9],['Enter',13],['Shift',16],['Ctrl',17],['Alt',18],
+  ['Pause',19],['CapsLock',20],['Escape',27],['Space',32],['PageUp',33],
+  ['PageDown',34],['End',35],['Home',36],['ArrowLeft',37],['ArrowUp',38],
+  ['ArrowRight',39],['ArrowDown',40],['Insert',45],['Delete',46],
+  ['0',48],['1',49],['A',65],['B',66],['F1',112],['F2',113],['F3',114],
+  ['F4',115],['F5',116],['F6',117],['F7',118],['F8',119],['F9',120],
+  ['F10',121],['F11',122],['F12',123],['NumLock',144],['ScrollLock',145],
+  [';',186],['=',187],[',',188],['-',189],['.',190],['/',191],['`',192],
+  ['[',219],['\\',220],[']',221],["'",222]
+];
+
+function init() {
+  const grid = document.getElementById('refGrid');
+  grid.innerHTML = COMMON_CODES.map(([name,code]) =>
+    `<div class="ref-item"><span class="ref-name">${esc(name)}</span><span class="ref-code">${code}</span></div>`
+  ).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showEvent(e, type) {
+  e.preventDefault();
+
+  // Hero
+  const hero = document.getElementById('hero');
+  const heroKey = document.getElementById('heroKey');
+  let display = e.key;
+  if (e.key === ' ') display = 'Space';
+  heroKey.textContent = display;
+  hero.classList.add('active');
+  document.getElementById('heroHint').textContent = `event.key = "${e.key}"`;
+
+  // Cards
+  document.getElementById('valKey').textContent = e.key;
+  document.getElementById('valCode').textContent = e.code;
+  document.getElementById('valKeyCode').textContent = e.keyCode;
+  document.getElementById('valWhich').textContent = e.which;
+  document.getElementById('valLocation').textContent = e.location;
+  document.getElementById('valLocationLabel').textContent = LOCATION_LABELS[e.location] || '';
+
+  // Modifiers
+  document.getElementById('modCtrl').classList.toggle('on', e.ctrlKey);
+  document.getElementById('modShift').classList.toggle('on', e.shiftKey);
+  document.getElementById('modAlt').classList.toggle('on', e.altKey);
+  document.getElementById('modMeta').classList.toggle('on', e.metaKey);
+
+  // Tabs
+  clearTimeout(clearTabTimeout);
+  document.getElementById('tab-' + type).classList.add('fired');
+  clearTabTimeout = setTimeout(() => {
+    document.querySelectorAll('.event-tab').forEach(t => t.classList.remove('fired'));
+  }, 600);
+
+  // Snippet (only update on keydown)
+  if (type === 'keydown') {
+    const keyStr = esc(e.key);
+    const codeStr = esc(e.code);
+    const conditions = [`e.key === '${e.key}'`];
+    if (e.ctrlKey) conditions.unshift('e.ctrlKey');
+    if (e.shiftKey) conditions.unshift('e.shiftKey');
+    if (e.altKey) conditions.unshift('e.altKey');
+    if (e.metaKey) conditions.unshift('e.metaKey');
+    const condStr = conditions.join(' && ');
+    const condEsc = esc(condStr);
+
+    snippetText = `document.addEventListener('keydown', (e) => {\n  if (${condStr}) {\n    e.preventDefault();\n    // your handler\n  }\n});`;
+
+    document.getElementById('snippet').innerHTML =
+      `<span class="hl-prop">document</span>.<span class="hl-fn">addEventListener</span>(<span class="hl-str">'keydown'</span>, (e) =&gt; {\n` +
+      `  <span class="hl-kw">if</span> (${condEsc}) {\n` +
+      `    e.<span class="hl-fn">preventDefault</span>();\n` +
+      `    <span class="hl-cm">// your handler</span>\n` +
+      `  }\n});`;
+
+    // History
+    history.unshift({ key: e.key, code: e.code, keyCode: e.keyCode, type });
+    if (history.length > 20) history.pop();
+    renderHistory();
+  }
+}
+
+function renderHistory() {
+  const tbody = document.getElementById('historyBody');
+  if (history.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text2);text-align:center">No keypresses yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = history.map((h, i) =>
+    `<tr><td style="color:var(--text2)">${i + 1}</td><td>${esc(h.key)}</td><td>${esc(h.code)}</td><td>${h.keyCode}</td><td>${h.type}</td></tr>`
+  ).join('');
+}
+
+function clearHistory() {
+  history.length = 0;
+  renderHistory();
+}
+
+function copySnippet() {
+  if (!snippetText) return;
+  navigator.clipboard.writeText(snippetText).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+document.addEventListener('keydown', e => showEvent(e, 'keydown'));
+document.addEventListener('keyup', e => {
+  showEvent(e, 'keyup');
+  document.getElementById('hero').classList.remove('active');
+});
+document.addEventListener('keypress', e => showEvent(e, 'keypress'));
+
+init();
+</script>
+</body>
+</html>
